@@ -13,6 +13,9 @@ import { TIERS } from '@/lib/gamification-data'
 const Dither = lazy(() => import('@/components/Dither'))
 const Silk = lazy(() => import('@/components/Silk'))
 const Beams = lazy(() => import('@/components/Beams'))
+const Iridescence = lazy(() => import('@/components/Iridescence'))
+const RippleGrid = lazy(() => import('@/components/RippleGrid'))
+const Hyperspeed = lazy(() => import('@/components/hyperspeed'))
 
 export function HomeView() {
   const [isDeckLoaded, setIsDeckLoaded] = useState(false)
@@ -166,8 +169,88 @@ export function HomeView() {
           </Suspense>
         </div>
       )}
+
+      {currentTier.id === 'platinum' && (
+        <div className="fixed inset-0 z-0">
+          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
+            <Iridescence
+              color={[0.49, 0.70, 0.82]} // Teal/turquoise color matching platinum theme
+              mouseReact={false}
+              amplitude={0.1}
+              speed={1.0}
+            />
+          </Suspense>
+          <div className="absolute inset-0 bg-black opacity-40" />
+          <div className="absolute inset-0" style={{
+            background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.75) 85%)'
+          }} />
+        </div>
+      )}
+
+      {currentTier.id === 'diamond' && (
+        <div className="fixed inset-0 z-0">
+          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
+            <RippleGrid
+              enableRainbow={false}
+              gridColor="#06b6d4" // Cyan color matching diamond theme
+              rippleIntensity={0.05}
+              gridSize={10}
+              gridThickness={15}
+              mouseInteraction={false}
+              mouseInteractionRadius={1.2}
+              opacity={0.8}
+            />
+          </Suspense>
+        </div>
+      )}
+
+      {currentTier.id === 'legendary' && (
+        <div className="fixed inset-0 z-0">
+          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
+            <Hyperspeed
+              effectOptions={{
+                onSpeedUp: () => { },
+                onSlowDown: () => { },
+                distortion: 'turbulentDistortion',
+                length: 400,
+                roadWidth: 9,
+                islandWidth: 2,
+                lanesPerRoad: 3,
+                fov: 90,
+                fovSpeedUp: 150,
+                speedUp: 2,
+                carLightsFade: 0.4,
+                totalSideLightSticks: 50,
+                lightPairsPerRoadWay: 50,
+                shoulderLinesWidthPercentage: 0.05,
+                brokenLinesWidthPercentage: 0.1,
+                brokenLinesLengthPercentage: 0.5,
+                lightStickWidth: [0.12, 0.5],
+                lightStickHeight: [1.3, 1.7],
+                movingAwaySpeed: [60, 80],
+                movingCloserSpeed: [-120, -160],
+                carLightsLength: [400 * 0.05, 400 * 0.15],
+                carLightsRadius: [0.05, 0.14],
+                carWidthPercentage: [0.3, 0.5],
+                carShiftX: [-0.8, 0.8],
+                carFloorSeparation: [0, 5],
+                colors: {
+                  roadColor: 0x080808,
+                  islandColor: 0x0a0a0a,
+                  background: 0x000000,
+                  shoulderLines: 0x131318,
+                  brokenLines: 0x131318,
+                  leftCars: [0xa855f7, 0xec4899, 0xef4444], // Purple/Pink/Red matching legendary theme
+                  rightCars: [0xf97316, 0xeab308, 0xa855f7], // Orange/Gold/Purple
+                  sticks: 0xec4899,
+                }
+              }}
+            />
+          </Suspense>
+        </div>
+      )}
       {/* Testing: Tier Selector */}
-      <div className="absolute top-4 right-4 z-40 max-w-xs">
+      <div className="absolute bottom-4 right-4 z-40 max-w-xs">
         <div className={`${tierTheme.card} rounded-lg shadow-xl ${tierTheme.border} border-2 p-3 inline-block`}>
           <label className={`block text-xs ${tierTheme.text} opacity-70 mb-1`}>
             Testing: Select Tier
