@@ -7,13 +7,14 @@ export interface Card {
   lastShownTurn: number
   nextReviewTurn?: number
   hasBeenAnsweredCorrectly: boolean
+  answeredInCurrentCycle: boolean // For infinite mode cycling
 }
 
 export interface SavedDeck {
   id: string
   name: string
   fileName: string
-  cards: Omit<Card, 'id' | 'originalQuestionNumber' | 'incorrectCount' | 'lastShownTurn' | 'nextReviewTurn' | 'hasBeenAnsweredCorrectly'>[]
+  cards: Omit<Card, 'id' | 'originalQuestionNumber' | 'incorrectCount' | 'lastShownTurn' | 'nextReviewTurn' | 'hasBeenAnsweredCorrectly' | 'answeredInCurrentCycle'>[]
   createdAt: string
   lastUsed: string
 }
@@ -51,7 +52,7 @@ export interface QuizState {
 
 export interface QuizActions {
   // Deck management
-  loadDeck: (cards: Omit<Card, 'id' | 'originalQuestionNumber' | 'incorrectCount' | 'lastShownTurn' | 'nextReviewTurn' | 'hasBeenAnsweredCorrectly'>[], fileName?: string) => void
+  loadDeck: (cards: Omit<Card, 'id' | 'originalQuestionNumber' | 'incorrectCount' | 'lastShownTurn' | 'nextReviewTurn' | 'hasBeenAnsweredCorrectly' | 'answeredInCurrentCycle'>[], fileName?: string) => void
   loadSavedDeck: (deckId: string) => void
   deleteSavedDeck: (deckId: string) => void
   clearDeck: () => void

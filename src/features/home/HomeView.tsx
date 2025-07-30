@@ -1,16 +1,25 @@
-import { useState } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Alert } from '@/components/ui/Alert'
 import { Select } from '@/components/ui/Select'
 import { useQuizStore } from '@/store/quizStore'
+import { useGamificationStore } from '@/store/gamificationStore'
 import { parseCSVFile } from '@/lib/csv-parser'
+import { TierBadge, AchievementGallery } from '@/components/gamification'
+import { getTierTheme, getTierSpecialEffects } from '@/lib/theme-utils'
+import { TIERS } from '@/lib/gamification-data'
+// Lazy load background components
+const Dither = lazy(() => import('@/components/Dither'))
+const Silk = lazy(() => import('@/components/Silk'))
+const Beams = lazy(() => import('@/components/Beams'))
 
 export function HomeView() {
   const [isDeckLoaded, setIsDeckLoaded] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [selectedDeckId, setSelectedDeckId] = useState('')
+  const [showAchievements, setShowAchievements] = useState(false)
   
   const { 
     loadDeck, 
@@ -24,6 +33,21 @@ export function HomeView() {
     savedDecks, 
     currentDeckName 
   } = useQuizStore()
+
+  const {
+    totalPoints,
+    currentTier,
+    bestStreak,
+    totalCorrectAnswers,
+    totalQuestionsAnswered,
+    recentAchievements,
+    loadGamificationProgress,
+    setTestingTier
+  } = useGamificationStore()
+
+  useEffect(() => {
+    loadGamificationProgress()
+  }, [loadGamificationProgress])
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -76,16 +100,154 @@ export function HomeView() {
     setSelectedDeckId('')
   }
 
+  const accuracy = totalQuestionsAnswered > 0 
+    ? Math.round((totalCorrectAnswers / totalQuestionsAnswered) * 100) 
+    : 0
+
+  const tierTheme = getTierTheme(currentTier)
+  const tierEffects = getTierSpecialEffects(currentTier)
+  
+  // Testing function to manually set tier
+  const handleTierChange = (tierId: string) => {
+    const selectedTier = TIERS.find(t => t.id === tierId)
+    if (selectedTier) {
+      // Use the testing tier functionality to persist across navigation
+      setTestingTier(selectedTier)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card variant="elevated" className="max-w-md w-full">
-        <div className="text-center space-y-6">
+    <div className={`min-h-screen ${tierTheme.background} relative`}>
+      {/* Tier-Specific Backgrounds - Lazy Loaded */}
+      {currentTier.id === 'bronze' && (
+        <div className="fixed inset-0 z-0">
+          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
+            <Dither
+              waveColor={[0.4, 0.3, 0.2]}
+              disableAnimation={false}
+              enableMouseInteraction={false}
+              mouseRadius={0.3}
+              colorNum={4}
+              waveAmplitude={0.3}
+              waveFrequency={3}
+              waveSpeed={0.05}
+            />
+          </Suspense>
+        </div>
+      )}
+      
+      {currentTier.id === 'silver' && (
+        <div className="fixed inset-0 z-0">
+          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
+            <Silk
+              color="#64748b"
+              speed={3}
+              scale={1}
+              noiseIntensity={1.2}
+              rotation={0.1}
+            />
+          </Suspense>
+        </div>
+      )}
+
+      {currentTier.id === 'gold' && (
+        <div className="fixed inset-0 z-0">
+          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
+            <Beams
+              beamWidth={2}
+              beamHeight={15}
+              beamNumber={12}
+              lightColor="#eab308"
+              speed={2}
+              noiseIntensity={1.75}
+              scale={0.2}
+              rotation={30}
+            />
+          </Suspense>
+        </div>
+      )}
+      {/* Testing: Tier Selector */}
+      <div className="absolute top-4 right-4 z-40 max-w-xs">
+        <div className={`${tierTheme.card} rounded-lg shadow-xl ${tierTheme.border} border-2 p-3 inline-block`}>
+          <label className={`block text-xs ${tierTheme.text} opacity-70 mb-1`}>
+            Testing: Select Tier
+          </label>
+          <select
+            value={currentTier.id}
+            onChange={(e) => handleTierChange(e.target.value)}
+            className={`
+              text-sm px-2 py-1 rounded border ${tierTheme.border} 
+              ${tierTheme.background} ${tierTheme.text}
+              focus:outline-none focus:ring-2 focus:ring-opacity-50
+            `}
+          >
+            {TIERS.map(tier => (
+              <option key={tier.id} value={tier.id}>
+                {tier.emoji} {tier.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      
+      {/* Tier Badge */}
+      <div className="absolute top-4 left-4 z-40 max-w-sm">
+        <div className={`${tierTheme.card} rounded-full shadow-xl ${tierTheme.border} border-2 p-3 flex items-center gap-3 inline-flex ${tierEffects.cardHover}`}>
+          <TierBadge tier={currentTier} points={totalPoints} compact={true} />
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Project Vulcan</h1>
-            <p className="text-gray-600 mt-2">
-              Voice-enabled flashcard study tool
-            </p>
+            <p className={`text-xs ${tierTheme.accent} opacity-75`}>Current Tier</p>
+            <p className={`font-bold ${tierTheme.text}`}>{currentTier.name}</p>
           </div>
+          <button
+            onClick={() => setShowAchievements(true)}
+            className={`
+              ml-2 px-2 py-1 rounded-md text-xs font-medium transition-all duration-300
+              ${tierTheme.text} hover:${tierTheme.card}
+              border ${tierTheme.border} hover:scale-105 hover:shadow-lg
+              group relative overflow-hidden
+            `}
+          >
+            <span className="relative z-10">🏆</span>
+            <div className={`
+              absolute inset-0 bg-gradient-to-r ${tierTheme.gradient} opacity-0 
+              group-hover:opacity-20 transition-opacity duration-300
+            `} />
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex items-center justify-center min-h-screen p-4 relative z-10">
+        <div className="max-w-md w-full">
+          {/* Enhanced Card with tier-specific gradient border */}
+          <div className="relative">
+            <div className={`absolute inset-0 bg-gradient-to-r ${tierTheme.gradient} rounded-2xl blur-xl opacity-30`}></div>
+            <Card variant="elevated" className={`relative ${tierTheme.card} rounded-2xl shadow-2xl ${tierTheme.border} border-2 ${tierEffects.cardHover}`}>
+              <div className="text-center space-y-6">
+                <div>
+                  <h1 className={`text-3xl font-bold ${tierTheme.text}`}>Project Vulcan</h1>
+                  <p className={`${tierTheme.accent} mt-2 opacity-80`}>
+                    Voice-enabled flashcard study tool
+                  </p>
+                </div>
+
+                {/* Stats Summary with tier colors */}
+                <div className="mb-6 grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <p className={`text-3xl font-bold bg-gradient-to-r ${tierTheme.gradient} bg-clip-text text-transparent`}>
+                      {totalPoints.toLocaleString()}
+                    </p>
+                    <p className={`text-xs ${tierTheme.accent} opacity-75`}>Total Points</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-600">{accuracy}%</p>
+                    <p className={`text-xs ${tierTheme.accent} opacity-75`}>Accuracy</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-orange-600">{bestStreak}</p>
+                    <p className={`text-xs ${tierTheme.accent} opacity-75`}>Best Streak</p>
+                  </div>
+                </div>
 
           {uploadError && (
             <Alert variant="error">
@@ -98,7 +260,7 @@ export function HomeView() {
               {/* Saved Decks Section */}
               {savedDecks.length > 0 && (
                 <div className="space-y-3">
-                  <h3 className="text-sm font-medium text-gray-700">Previously Used Decks</h3>
+                  <h3 className={`text-sm font-medium ${tierTheme.text}`}>Previously Used Decks</h3>
                   <div className="space-y-2">
                     <Select
                       value={selectedDeckId}
@@ -115,14 +277,20 @@ export function HomeView() {
                     
                     {selectedDeckId && (
                       <div className="flex space-x-2">
-                        <Button
+                        <button
                           onClick={() => handleSavedDeckSelect(selectedDeckId)}
-                          size="md"
-                          className="flex-1"
                           disabled={!selectedDeckId}
+                          className={`
+                            flex-1 px-4 py-2 rounded-md font-medium text-white text-sm
+                            bg-gradient-to-r ${tierTheme.gradient} 
+                            hover:shadow-lg hover:scale-105 
+                            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                            transition-all duration-300 relative overflow-hidden group
+                          `}
                         >
-                          Load Selected Deck
-                        </Button>
+                          <span className="relative z-10">Load Selected Deck</span>
+                          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                        </button>
                         <Button
                           variant="danger"
                           onClick={(e) => handleDeleteSavedDeck(selectedDeckId, e)}
@@ -156,14 +324,21 @@ export function HomeView() {
                     id="csv-upload"
                   />
                   <label htmlFor="csv-upload">
-                    <Button 
-                      as="span"
-                      size="lg"
-                      className="w-full cursor-pointer"
-                      disabled={isProcessing}
+                    <span
+                      className={`
+                        w-full px-6 py-3 rounded-md font-medium text-white cursor-pointer
+                        bg-gradient-to-r ${tierTheme.gradient} 
+                        hover:shadow-lg hover:scale-105 
+                        ${isProcessing ? 'opacity-50 cursor-not-allowed hover:scale-100' : ''}
+                        transition-all duration-300 relative overflow-hidden group
+                        flex items-center justify-center text-base
+                      `}
                     >
-                      {isProcessing ? 'Processing...' : 'Upload New Study Deck (CSV)'}
-                    </Button>
+                      <span className="relative z-10">
+                        {isProcessing ? 'Processing...' : 'Upload New Study Deck (CSV)'}
+                      </span>
+                      <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                    </span>
                   </label>
                 </div>
               </div>
@@ -180,7 +355,7 @@ export function HomeView() {
               
               {/* Quiz Mode Selection */}
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-700">Quiz Mode</h3>
+                <h3 className={`text-sm font-medium ${tierTheme.text}`}>Quiz Mode</h3>
                 <div className="space-y-2">
                   <label className="flex items-center space-x-3">
                     <input
@@ -192,8 +367,8 @@ export function HomeView() {
                       className="w-4 h-4 text-blue-600"
                     />
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900">Single Cycle</div>
-                      <div className="text-xs text-gray-500">Go through each question once, then end</div>
+                      <div className={`text-sm font-medium ${tierTheme.text}`}>Single Cycle</div>
+                      <div className={`text-xs ${tierTheme.text} opacity-70`}>Go through each question once, then end</div>
                     </div>
                   </label>
                   <label className="flex items-center space-x-3">
@@ -206,21 +381,28 @@ export function HomeView() {
                       className="w-4 h-4 text-blue-600"
                     />
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900">Infinite Practice</div>
-                      <div className="text-xs text-gray-500">Keep practicing until stopped, repeat difficult questions</div>
+                      <div className={`text-sm font-medium ${tierTheme.text}`}>Infinite Practice</div>
+                      <div className={`text-xs ${tierTheme.text} opacity-70`}>Keep practicing until stopped, repeat difficult questions</div>
                     </div>
                   </label>
                 </div>
               </div>
               
               <div className="space-y-3">
-                <Button 
+                <button
                   onClick={handleStartQuiz}
-                  size="lg"
-                  className="w-full"
+                  className={`
+                    w-full px-6 py-4 rounded-md font-medium text-white text-lg
+                    bg-gradient-to-r ${tierTheme.gradient} 
+                    hover:shadow-lg hover:scale-105 
+                    transition-all duration-300 relative overflow-hidden group
+                  `}
                 >
-                  Start {quizMode === 'single-cycle' ? 'Single Cycle' : 'Infinite'} Quiz
-                </Button>
+                  <span className="relative z-10">
+                    Start {quizMode === 'single-cycle' ? 'Single Cycle' : 'Infinite'} Quiz
+                  </span>
+                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                </button>
                 
                 <Button 
                   variant="secondary"
@@ -234,12 +416,39 @@ export function HomeView() {
             </div>
           )}
 
-          <div className="text-sm text-gray-500">
-            <p>Upload a CSV file with two columns:</p>
-            <p className="font-mono text-xs mt-1">Question, Answer</p>
+                <div className={`text-sm ${tierTheme.text} opacity-70`}>
+                  <p>Upload a CSV file with two columns:</p>
+                  <p className="font-mono text-xs mt-1">Question, Answer</p>
+                </div>
+              </div>
+            </Card>
           </div>
+
+          {/* Quick Achievements Preview */}
+          {recentAchievements.length > 0 && (
+            <div className="mt-6 bg-white rounded-xl shadow-lg p-4">
+              <h3 className="font-semibold text-gray-700 mb-3">Recent Achievements</h3>
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {recentAchievements.map((achievement) => (
+                  <div
+                    key={achievement.id}
+                    className="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-lg flex items-center justify-center shadow-md hover:scale-110 transition-transform cursor-pointer"
+                    title={achievement.name}
+                  >
+                    <span className="text-2xl">{achievement.emoji}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </Card>
+      </div>
+      
+      {/* Achievement Gallery Modal */}
+      <AchievementGallery 
+        isOpen={showAchievements}
+        onClose={() => setShowAchievements(false)}
+      />
     </div>
   )
 }
