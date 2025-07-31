@@ -131,24 +131,24 @@ export function getTierSpecialEffects(tier: Tier): {
       }
     case 'platinum':
       return {
-        cardHover: 'hover:shadow-2xl hover:shadow-teal-400/50 hover:scale-[1.03] hover:rotate-1 transition-all duration-300',
+        cardHover: 'hover:shadow-2xl hover:shadow-teal-400/50 hover:scale-[1.03] transition-all duration-300',
         buttonHover: 'hover:from-teal-600 hover:to-emerald-700',
         progressBar: 'bg-gradient-to-r from-teal-400 to-emerald-500',
-        specialEffects: ['animate-pulse', 'hover:animate-bounce', 'animate-shimmer', 'hover:animate-spin-slow']
+        specialEffects: ['animate-pulse', 'hover:animate-bounce', 'animate-shimmer']
       }
     case 'diamond':
       return {
-        cardHover: 'hover:shadow-2xl hover:shadow-cyan-400/60 hover:scale-[1.04] hover:-rotate-1 transition-all duration-500',
+        cardHover: 'hover:shadow-2xl hover:shadow-cyan-400/60 hover:scale-[1.03] transition-all duration-300',
         buttonHover: 'hover:from-cyan-600 hover:to-blue-700',
         progressBar: 'bg-gradient-to-r from-cyan-400 to-blue-500',
-        specialEffects: ['animate-pulse', 'hover:animate-bounce', 'animate-shimmer', 'hover:animate-spin-slow', 'animate-scale-in']
+        specialEffects: ['animate-pulse', 'hover:animate-bounce', 'animate-shimmer', 'animate-scale-in']
       }
     case 'legendary':
       return {
-        cardHover: 'hover:shadow-2xl hover:shadow-purple-500/70 hover:scale-[1.05] hover:rotate-2 transition-all duration-500',
+        cardHover: 'hover:shadow-2xl hover:shadow-purple-500/70 hover:scale-[1.03] transition-all duration-300',
         buttonHover: 'hover:from-purple-600 hover:via-pink-600 hover:to-red-600',
         progressBar: 'bg-gradient-to-r from-purple-400 via-pink-500 to-red-500',
-        specialEffects: ['animate-pulse', 'hover:animate-bounce', 'animate-shimmer', 'hover:animate-spin-slow', 'animate-scale-in', 'animate-pulse-slow']
+        specialEffects: ['animate-pulse', 'hover:animate-bounce', 'animate-shimmer', 'animate-scale-in', 'animate-pulse-slow']
       }
     default:
       return {

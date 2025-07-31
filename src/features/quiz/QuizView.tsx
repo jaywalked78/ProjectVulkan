@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react'
+import { useEffect } from 'react'
 import { useQuizStore } from '@/store/quizStore'
 import { useGamificationStore } from '@/store/gamificationStore'
 import { QuizCard } from './components/QuizCard'
@@ -9,13 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { PointsDisplay, AchievementToast, StreakIndicator } from '@/components/gamification'
 import { getStreakMultiplier } from '@/lib/gamification-data'
 import { getTierTheme } from '@/lib/theme-utils'
-// Lazy load background components
-const Dither = lazy(() => import('@/components/Dither'))
-const Silk = lazy(() => import('@/components/Silk'))
-const Beams = lazy(() => import('@/components/Beams'))
-const Iridescence = lazy(() => import('@/components/Iridescence'))
-const RippleGrid = lazy(() => import('@/components/RippleGrid'))
-const Hyperspeed = lazy(() => import('@/components/hyperspeed'))
+import { BackgroundRenderer } from '@/components/backgrounds/BackgroundRenderer'
 
 interface QuizViewProps {
   onEndQuiz: () => void
@@ -60,134 +54,8 @@ export function QuizView({ onEndQuiz }: QuizViewProps) {
 
   return (
     <div className={`min-h-screen ${tierTheme.background} py-8 px-4 relative`}>
-      {/* Tier-Specific Backgrounds - Lazy Loaded */}
-      {currentTier.id === 'bronze' && (
-        <div className="fixed inset-0 z-0">
-          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
-            <Dither
-              waveColor={[0.4, 0.3, 0.2]}
-              disableAnimation={false}
-              enableMouseInteraction={false}
-              mouseRadius={0.3}
-              colorNum={4}
-              waveAmplitude={0.3}
-              waveFrequency={3}
-              waveSpeed={0.05}
-            />
-          </Suspense>
-        </div>
-      )}
-      
-      {currentTier.id === 'silver' && (
-        <div className="fixed inset-0 z-0">
-          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
-            <Silk
-              color="#64748b"
-              speed={3}
-              scale={1}
-              noiseIntensity={1.2}
-              rotation={0.1}
-            />
-          </Suspense>
-        </div>
-      )}
-
-      {currentTier.id === 'gold' && (
-        <div className="fixed inset-0 z-0">
-          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
-            <Beams
-              beamWidth={2}
-              beamHeight={15}
-              beamNumber={12}
-              lightColor="#eab308"
-              speed={2}
-              noiseIntensity={1.75}
-              scale={0.2}
-              rotation={30}
-            />
-          </Suspense>
-        </div>
-      )}
-
-      {currentTier.id === 'platinum' && (
-        <div className="fixed inset-0 z-0">
-          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
-            <Iridescence
-              color={[0.49, 0.70, 0.82]} // Teal/turquoise color matching platinum theme
-              mouseReact={false}
-              amplitude={0.1}
-              speed={1.0}
-            />
-          </Suspense>
-          <div className="absolute inset-0 bg-black opacity-40" />
-          <div className="absolute inset-0" style={{
-            background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.75) 85%)'
-          }} />
-        </div>
-      )}
-
-      {currentTier.id === 'diamond' && (
-        <div className="fixed inset-0 z-0">
-          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
-            <RippleGrid
-              enableRainbow={false}
-              gridColor="#06b6d4" // Cyan color matching diamond theme
-              rippleIntensity={0.05}
-              gridSize={10}
-              gridThickness={15}
-              mouseInteraction={false}
-              mouseInteractionRadius={1.2}
-              opacity={0.8}
-            />
-          </Suspense>
-        </div>
-      )}
-
-      {currentTier.id === 'legendary' && (
-        <div className="fixed inset-0 z-0">
-          <Suspense fallback={<div className="w-full h-full bg-gray-900" />}>
-            <Hyperspeed
-              effectOptions={{
-                onSpeedUp: () => { },
-                onSlowDown: () => { },
-                distortion: 'turbulentDistortion',
-                length: 400,
-                roadWidth: 9,
-                islandWidth: 2,
-                lanesPerRoad: 3,
-                fov: 90,
-                fovSpeedUp: 150,
-                speedUp: 2,
-                carLightsFade: 0.4,
-                totalSideLightSticks: 50,
-                lightPairsPerRoadWay: 50,
-                shoulderLinesWidthPercentage: 0.05,
-                brokenLinesWidthPercentage: 0.1,
-                brokenLinesLengthPercentage: 0.5,
-                lightStickWidth: [0.12, 0.5],
-                lightStickHeight: [1.3, 1.7],
-                movingAwaySpeed: [60, 80],
-                movingCloserSpeed: [-120, -160],
-                carLightsLength: [400 * 0.05, 400 * 0.15],
-                carLightsRadius: [0.05, 0.14],
-                carWidthPercentage: [0.3, 0.5],
-                carShiftX: [-0.8, 0.8],
-                carFloorSeparation: [0, 5],
-                colors: {
-                  roadColor: 0x080808,
-                  islandColor: 0x0a0a0a,
-                  background: 0x000000,
-                  shoulderLines: 0x131318,
-                  brokenLines: 0x131318,
-                  leftCars: [0xa855f7, 0xec4899, 0xef4444], // Purple/Pink/Red matching legendary theme
-                  rightCars: [0xf97316, 0xeab308, 0xa855f7], // Orange/Gold/Purple
-                  sticks: 0xec4899,
-                }
-              }}
-            />
-          </Suspense>
-        </div>
-      )}
+      {/* Progressive Enhanced Background */}
+      <BackgroundRenderer tier={currentTier} />
       
       {/* Achievement Toast Overlay */}
       {showAchievementToast && currentAchievementToast && (

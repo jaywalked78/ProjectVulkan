@@ -71,7 +71,7 @@ export function AnswerInput() {
         <Button
           type="submit"
           size="lg"
-          className={`${tierTheme.primary} text-white hover:opacity-90 disabled:opacity-50 px-8 py-3`}
+          className={`${tierTheme.primary} text-dark-grey hover:opacity-90 disabled:opacity-50 px-8 py-3`}
           disabled={!localAnswer.trim()}
         >
           Submit Answer

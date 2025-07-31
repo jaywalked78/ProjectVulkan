@@ -20,6 +20,13 @@ export default {
         'fill-progress': 'fillProgress 5s ease-out forwards',
         'ring-pulse': 'ringPulse 2s infinite',
         'achievement-glow': 'achievementGlow 2s ease-in-out infinite alternate',
+        // Performance-optimized background animations
+        'bronze-dither': 'bronzeDither 4s ease-in-out infinite',
+        'silver-silk': 'silverSilk 6s ease-in-out infinite',
+        'gold-beams': 'goldBeams 3s linear infinite',
+        'platinum-iridescence': 'platinumIridescence 8s ease-in-out infinite',
+        'diamond-ripple': 'diamondRipple 5s ease-in-out infinite',
+        'legendary-hyperspeed': 'legendaryHyperspeed 2s linear infinite',
       },
       keyframes: {
         slideUp: {
@@ -132,6 +139,98 @@ export default {
             boxShadow: '0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6)',
           },
         },
+        // Performance-optimized background keyframes
+        bronzeDither: {
+          '0%': { 
+            backgroundPosition: '0% 0%', 
+            filter: 'hue-rotate(0deg) contrast(1)' 
+          },
+          '25%': { 
+            backgroundPosition: '25% 25%', 
+            filter: 'hue-rotate(5deg) contrast(1.1)' 
+          },
+          '50%': { 
+            backgroundPosition: '50% 50%', 
+            filter: 'hue-rotate(10deg) contrast(1.2)' 
+          },
+          '75%': { 
+            backgroundPosition: '75% 75%', 
+            filter: 'hue-rotate(5deg) contrast(1.1)' 
+          },
+          '100%': { 
+            backgroundPosition: '100% 100%', 
+            filter: 'hue-rotate(0deg) contrast(1)' 
+          },
+        },
+        silverSilk: {
+          '0%': { 
+            backgroundPosition: '0% 50%', 
+            opacity: '0.3' 
+          },
+          '50%': { 
+            backgroundPosition: '100% 50%', 
+            opacity: '0.6' 
+          },
+          '100%': { 
+            backgroundPosition: '200% 50%', 
+            opacity: '0.3' 
+          },
+        },
+        goldBeams: {
+          '0%': { 
+            transform: 'translateX(-100%) rotate(45deg)' 
+          },
+          '100%': { 
+            transform: 'translateX(200%) rotate(45deg)' 
+          },
+        },
+        platinumIridescence: {
+          '0%': { 
+            backgroundPosition: '0% 50%' 
+          },
+          '50%': { 
+            backgroundPosition: '100% 50%' 
+          },
+          '100%': { 
+            backgroundPosition: '200% 50%' 
+          },
+        },
+        diamondRipple: {
+          '0%': { 
+            transform: 'scale(1) rotate(0deg)', 
+            opacity: '0.8' 
+          },
+          '50%': { 
+            transform: 'scale(1.05) rotate(180deg)', 
+            opacity: '0.6' 
+          },
+          '100%': { 
+            transform: 'scale(1) rotate(360deg)', 
+            opacity: '0.8' 
+          },
+        },
+        legendaryHyperspeed: {
+          '0%': { 
+            backgroundPosition: '0% 0%',
+            filter: 'brightness(1) hue-rotate(0deg)'
+          },
+          '25%': {
+            backgroundPosition: '25% 25%',
+            filter: 'brightness(1.2) hue-rotate(90deg)'
+          },
+          '50%': { 
+            backgroundPosition: '50% 50%',
+            filter: 'brightness(1.4) hue-rotate(180deg)'
+          },
+          '75%': {
+            backgroundPosition: '75% 75%',
+            filter: 'brightness(1.2) hue-rotate(270deg)'
+          },
+          '100%': { 
+            backgroundPosition: '100% 100%',
+            filter: 'brightness(1) hue-rotate(360deg)'
+          },
+        },
       },
       backgroundImage: {
         // Current tier system gradients
@@ -141,8 +240,13 @@ export default {
         'tier-platinum': 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
         'tier-diamond': 'linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)',
         'tier-legendary': 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
+        // Performance-optimized background patterns
+        'gradient-radial': 'radial-gradient(ellipse at center, var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
       colors: {
+        // Custom dark grey for Bronze and Gold tier text
+        'dark-grey': '#090909',
         // Tier color system
         tier: {
           bronze: {
